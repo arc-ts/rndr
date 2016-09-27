@@ -3,7 +3,8 @@
 require 'thor'
 
 module Rndr
-  # CLI controls for rndr
+  # Parent CLI controls for Rndr.
+  # @author Bob Killen <rkillen@umich.edu>
   class CLI < Thor
     desc 'check', 'Verifies discovered erb templates.'
     method_option :extension,
@@ -24,7 +25,7 @@ module Rndr
       template_vars = Rndr.read_vars(path: options[:vars], merge: options[:merge])
       results.each do |path|
         template = Template.new(path: path, vars: template_vars)
-        print_check_result(path, template.render?)
+        print_check_result(path: path, result: template.render?)
       end
     end
 
@@ -58,14 +59,15 @@ module Rndr
     method_option :vars,
                   aliases: :V, type: :string, default: File.join(Dir.pwd, 'vars'),
                   desc: 'Path to var file or directory.'
-    def render # rubocop:disable Metrics/AbcSize
+    def render
       results =
         Rndr.matches(path: options[:template], ext: options[:extension], ignore_file: '.rndrignore')
       template_vars = Rndr.read_vars(path: options[:vars], merge: options[:merge])
       results.each do |path|
         template = Template.new(path: path, vars: template_vars)
-        template.render(path.gsub(/.#{options[:extension]}$/, '')) if template.render?
-        print_check_result(path.gsub(/.#{options[:extension]}$/, ''), template.render?)
+        render_path = path.gsub(/.#{options[:extension]}$/, '')
+        template.render(render_path) if template.render?
+        print_check_result(path: render_path, result: template.render?)
       end
     end
 
@@ -99,7 +101,10 @@ module Rndr
 
     private
 
-    def print_check_result(path, result)
+    # print_check_result puts the results of an attempted Template.render? action.
+    # @param path [String] Path to template or rendered template.
+    # @param result [Boolean] True is successfully rendered template.
+    def print_check_result(path:, result:)
       case result
       when true
         puts "#{path} [OK]"

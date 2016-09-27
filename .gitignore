@@ -1,6 +1,13 @@
+._*
+.DS_Store
+.*.sw?
+*~
 *.gem
 *.rbc
 /.config
+/.yardoc
+/_yardoc
+/doc/
 /coverage/
 /InstalledFiles
 /pkg/

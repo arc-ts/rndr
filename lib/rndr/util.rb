@@ -4,13 +4,15 @@ require 'deep_merge'
 require 'json'
 require 'yaml'
 
-# fill in later
 module Rndr
+  # Accepts a path (either file or directory), a file extension, and the name
+  # of a file within the working directory that contains a list of file glob
+  # patterns to be skipped. It returns an array of filtered matched paths.
   # @param path [String] The path to the template file or directory.
   # @param ext [String] The File name extension to identify template files.
   # @param ignore_file [String] The path to ignore file.
   # @return [Array<String>] list of paths to matching results.
-  def self.matches(path:, ext: 'erb', ignore_file:)
+  def self.matches(path:, ext: 'erb', ignore_file: '.rndrignore')
     matched_paths = match_files(path: File.absolute_path(path), ext: ext)
     ignore_file_path = File.absolute_path(ignore_file)
     if !matched_paths.empty? && File.exist?(ignore_file_path)
@@ -20,10 +22,13 @@ module Rndr
     end
   end
 
+  # Accepts a file or directory and will attempt to parse the discovered file(s) as either json
+  # or yaml. It will then be returned as a hash intended for use with seeding the binding used for
+  # template rendering in {Template#render}.
   # @param path [String] The path to the vars file or directory. Will process both json and yaml.
   # @param merge [Boolean] True to enable recursive merge of hashes.
   # @return [Hash] A hash containing the processed variables. Will be used to send to the binding
-  #    of a rendered template. @see {Template#render}.
+  #    of a rendered template. See {Template#render} for more information.
   def self.read_vars(path:, merge: true)
     vars_path = File.absolute_path(path)
     return read_vars_file(vars_path) if File.file?(vars_path)
@@ -47,6 +52,8 @@ module Rndr
       []
     end
 
+    # filter_ignored_paths removes paths from the supplied list if they match a
+    # path within the supplied ignore_file.
     # @param path_list [Array<String>] Array of paths to matching files before prune
     #    from ignore_file.
     # @param ignore_file [String] Path to ignore file. Passed to @see #ignore_paths for
@@ -62,6 +69,8 @@ module Rndr
       end
     end
 
+    # ignore_paths returns a list of paths used to filter possible discovered tempaltes
+    # that should be ignored.
     # @param ignore_file [String] Path to ignore file.
     # @return [Array<String>] Generated list of paths to be ignored.
     def ignore_paths(ignore_file)
@@ -72,8 +81,10 @@ module Rndr
       ignore_list
     end
 
+    # read_vars_file reads the data stored in file as supplied by path. processed_vars
+    # json or yaml
     # @param path [String] Path to file with variables to be processed.
-    # @return [Hash, nil] Hash of Serialized data read from var passed var file.
+    # @return [Hash, nil] Hash of processed data read from var passed var file.
     def read_vars_file(path)
       data = File.read(path)
       return JSON.load(data) if json?(data)
@@ -81,6 +92,8 @@ module Rndr
       nil
     end
 
+    # read_vars_dir combines all the variables within a supplied directory. It can injest
+    # json or yaml.
     # @param path [String] Path to directory containing files to be ingested and vars
     #    processed.
     # @param merge [Boolean] True if variables from files should be recursively merged.
@@ -97,6 +110,7 @@ module Rndr
       processed_vars
     end
 
+    # json? tests if the supplied json is parsable or not.
     # @param data [String] String containing read data from file.
     # @return [Boolean] True if data is valid json.
     def json?(data)
@@ -106,6 +120,7 @@ module Rndr
       false
     end
 
+    # yaml? tests if the supplied yaml is parsable or not.
     # @param data [String] String containing read data from file.
     # @return [Boolean] True if data is valid yaml.
     def yaml?(data)
@@ -115,10 +130,12 @@ module Rndr
       false
     end
 
+    # merge_vars handles merging hashes, either with a recursive merge (default) or with
+    # a standard merge, which has a 'replace' effect.
     # @param base_hash [Hash] Original Hash to have values merged into.
     # @param hash [Hash] Secondary hash to be merged into base hash.
     # @param merge [Boolean] True to enable recursive merging of hashes.
-    # @return [Hash]
+    # @return [Hash] The merged hash.
     def merge_vars(base_hash:, hash:, merge: true)
       if base_hash.is_a(Hash) && hash.is_a?(Hash)
         return base_hash.deep_merge!(hash) if merge == true

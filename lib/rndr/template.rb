@@ -3,9 +3,10 @@
 require 'erb'
 
 module Rndr
-  # Handles the rendering of a template file.
+  # This class is used to handle the rendering of `ERB` templates.
+  # @author Bob Killen <rkillen@umich.edu>
   class Template
-    # Constructs a new instance of Template
+    # Constructs a new instance of Template.
     # @param path [String] The path to the template file.
     # @param vars [Hash] A hash of the variables to be passed to the template's binding.
     def initialize(path:, vars: {})
@@ -13,19 +14,23 @@ module Rndr
       @vars = vars
     end
 
+    # Verifies if a template is renderable or not.
     # @return [Boolean]  True if template is renderable.
     def render?
       render_helper
     end
 
+    # Renders the template to the supplied path.
     # @param render_path [String] Path to desired rendered template location.
-    # @return [Boolean] True if template is renderable.
+    # @return [Boolean] True if template was rendered successfully.
     def render(render_path)
       render_helper(render_path)
     end
 
     private
 
+    # Does the heavy lifting of template generation.
+    # If no path is supplied, it simply tests if the template is renderable.
     # @param render_path [String] Path to desired rendered template location.
     # @return [Boolean] True if template is renderable, and rendered file written.
     def render_helper(render_path = nil)

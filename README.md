@@ -10,7 +10,8 @@ Files and directories can be ignored by creating a `.rndrignore` file within the
   * [Vars](#vars)
 
 ## Commands
-```bash
+
+```
 $ bin/rndr help
 Commands:
   rndr check           # Verifies discovered erb templates.
@@ -19,10 +20,12 @@ Commands:
   rndr render          # Renders discovered templates.
   rndr vars            # Lists Combined Variables.
   rndr version         # Prints rndr Version Information.
+...
 ```
 
 ### Check
-```bash
+
+```
 $ bin/rndr help check
 Usage:
   rndr check
@@ -38,10 +41,12 @@ Options:
                               # Default: /Users/bob/projects/ruby/rndr/vars
 
 Verifies discovered erb templates.
+...
 ```
 
 ### List
-```bash
+
+```
 $ bin/rndr help list
 Usage:
   rndr list
@@ -53,10 +58,12 @@ Options:
                               # Default: /Users/bob/projects/ruby/rndr
 
 List discovered templates.
+...
 ```
 
 ### Render
-```bash
+
+```
 $ bin/rndr help render
 Usage:
   rndr render
@@ -72,10 +79,12 @@ Options:
                               # Default: /Users/bob/projects/ruby/rndr/vars
 
 Renders discovered templates.
+...
 ```
 
 ### Vars
-```bash
+
+```
 $ bin/rndr help vars
 Usage:
   rndr vars
@@ -89,4 +98,5 @@ Options:
                               # Default: /Users/bob/projects/ruby/rndr/vars
 
 Lists Combined Variables.
+...
 ```
