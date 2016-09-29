@@ -10,6 +10,9 @@ module Rndr
     method_option :extension,
                   aliases: :e, type: :string, default: 'erb',
                   desc: 'Extension of templates.'
+    method_option :ignore,
+                  aliases: :i, type: :string, default: File.join(Dir.pwd, '.rndrignore'),
+                  desc: 'Path to file containing list of files to be ignored.'
     method_option :merge,
                   aliases: :m, type: :boolean, default: true,
                   desc: 'Recursively merge variables instead of replacing.'
@@ -20,8 +23,8 @@ module Rndr
                   aliases: :V, type: :string, default: File.join(Dir.pwd, 'vars'),
                   desc: 'Path to var file or directory.'
     def check
-      results =
-        Rndr.matches(path: options[:template], ext: options[:extension], ignore_file: '.rndrignore')
+      results = Rndr.matches(path: options[:template], ext: options[:extension],
+                             ignore_path: options[:ignore])
       template_vars = Rndr.read_vars(path: options[:vars], merge: options[:merge])
       results.each do |path|
         template = Template.new(path: path, vars: template_vars)
@@ -33,12 +36,15 @@ module Rndr
     method_option :extension,
                   aliases: :e, type: :string, default: 'erb',
                   desc: 'Extension of templates.'
+    method_option :ignore,
+                  aliases: :i, type: :string, default: File.join(Dir.pwd, '.rndrignore'),
+                  desc: 'Path to file containing list of files to be ignored.'
     method_option :template,
                   aliases: :t, type: :string, default: Dir.pwd,
                   desc: 'Path to erb template or directory.'
     def list
-      results =
-        Rndr.matches(path: options[:template], ext: options[:extension], ignore_file: '.rndrignore')
+      results = Rndr.matches(path: options[:template], ext: options[:extension],
+                             ignore_path: '.rndrignore')
       if results.empty?
         puts 'No matching results.'
       else
@@ -50,6 +56,9 @@ module Rndr
     method_option :extension,
                   aliases: :e, type: :string, default: 'erb',
                   desc: 'Extension of templates.'
+    method_option :ignore,
+                  aliases: :i, type: :string, default: File.join(Dir.pwd, '.rndrignore'),
+                  desc: 'Path to file containing list of files to be ignored.'
     method_option :merge,
                   aliases: :m, type: :boolean, default: true,
                   desc: 'Recursively merge variables instead of replacing.'
@@ -60,8 +69,8 @@ module Rndr
                   aliases: :V, type: :string, default: File.join(Dir.pwd, 'vars'),
                   desc: 'Path to var file or directory.'
     def render
-      results =
-        Rndr.matches(path: options[:template], ext: options[:extension], ignore_file: '.rndrignore')
+      results = Rndr.matches(path: options[:template], ext: options[:extension],
+                             ignore_path: '.rndrignore')
       template_vars = Rndr.read_vars(path: options[:vars], merge: options[:merge])
       results.each do |path|
         template = Template.new(path: path, vars: template_vars)

@@ -4,6 +4,9 @@ AllCops:
 Metrics/AbcSize:
   Max: 20
 
+Metrics/ClassLength:
+  Enabled: false
+
 Metrics/LineLength:
   Max: 100
 

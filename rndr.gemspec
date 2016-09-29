@@ -23,4 +23,6 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'thor', '>= 0.19.1'
 
   gem.add_development_dependency 'bundler', '>= 1.12.5'
+  gem.add_development_dependency 'rake', '>= 11.2.2'
+  gem.add_development_dependency 'rspec', '>= 3.5.0'
 end

@@ -10,13 +10,13 @@ module Rndr
   # patterns to be skipped. It returns an array of filtered matched paths.
   # @param path [String] The path to the template file or directory.
   # @param ext [String] The File name extension to identify template files.
-  # @param ignore_file [String] The path to ignore file.
+  # @param ignore_path [String] The path to ignore file.
   # @return [Array<String>] list of paths to matching results.
-  def self.matches(path:, ext: 'erb', ignore_file: '.rndrignore')
+  def self.matches(path:, ext: 'erb', ignore_path: File.join(Dir.pwd, '.rndrignore'))
     matched_paths = match_files(path: File.absolute_path(path), ext: ext)
-    ignore_file_path = File.absolute_path(ignore_file)
+    ignore_file_path = File.absolute_path(ignore_path)
     if !matched_paths.empty? && File.exist?(ignore_file_path)
-      return filter_ignored_paths(path_list: matched_paths, ignore_file: ignore_file_path)
+      return filter_ignored_paths(path_list: matched_paths, ignore_path: ignore_file_path)
     else
       return matched_paths
     end
@@ -53,15 +53,15 @@ module Rndr
     end
 
     # filter_ignored_paths removes paths from the supplied list if they match a
-    # path within the supplied ignore_file.
+    # path within the supplied ignore_path.
     # @param path_list [Array<String>] Array of paths to matching files before prune
-    #    from ignore_file.
-    # @param ignore_file [String] Path to ignore file. Passed to @see #ignore_paths for
+    #    from ignore_path.
+    # @param ignore_path [String] Path to ignore file. Passed to @see #ignore_paths for
     #    processing.
     # @return [Array<String>] Pruned list of paths with files matching the glob patterns
-    #    in ignore_file removed.
-    def filter_ignored_paths(path_list:, ignore_file:)
-      ignored_paths = ignore_paths(ignore_file)
+    #    in ignore_path removed.
+    def filter_ignored_paths(path_list:, ignore_path:)
+      ignored_paths = ignore_paths(ignore_path)
       path_list.reject do |file|
         ignored_paths.any? do |ignore|
           File.fnmatch(ignore, file, File::FNM_PATHNAME)
@@ -71,13 +71,13 @@ module Rndr
 
     # ignore_paths returns a list of paths used to filter possible discovered tempaltes
     # that should be ignored.
-    # @param ignore_file [String] Path to ignore file.
+    # @param ignore_path [String] Path to ignore file.
     # @return [Array<String>] Generated list of paths to be ignored.
-    def ignore_paths(ignore_file)
-      ignore_list = File.readlines(ignore_file)
+    def ignore_paths(ignore_path)
+      ignore_list = File.readlines(ignore_path)
       ignore_list.map! { |line| line.chomp.strip }
       ignore_list.reject! { |line| line.empty? || line =~ /^(#|!)/ }
-      ignore_list.map! { |line| File.join(Dir.pwd, line) }
+      ignore_list.map! { |line| File.absolute_path(line, File.dirname(ignore_path)) }
       ignore_list
     end
 
@@ -137,7 +137,7 @@ module Rndr
     # @param merge [Boolean] True to enable recursive merging of hashes.
     # @return [Hash] The merged hash.
     def merge_vars(base_hash:, hash:, merge: true)
-      if base_hash.is_a(Hash) && hash.is_a?(Hash)
+      if base_hash.is_a?(Hash) && hash.is_a?(Hash)
         return base_hash.deep_merge!(hash) if merge == true
         return base_hash.merge!(hash) if merge == false
       end
