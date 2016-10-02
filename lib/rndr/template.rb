@@ -10,7 +10,7 @@ module Rndr
     # @param path [String] The path to the template file.
     # @param vars [Hash] A hash of the variables to be passed to the template's binding.
     def initialize(path:, vars: {})
-      @path = path
+      @path = File.absolute_path(path)
       @vars = vars
     end
 

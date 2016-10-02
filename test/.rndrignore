@@ -1,2 +1,3 @@
 #i r ignored
 templates/ignoretest.txt.erb
+templates/failtest.txt.erb
