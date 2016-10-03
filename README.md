@@ -1,6 +1,10 @@
 # Rndr
-A small ruby based cli application that renders discovered ruby templates.
-Files and directories can be ignored by creating a `.rndrignore` file within the directory it is being executed.
+[![Build Status](https://travis-ci.org/mrbobbytables/rndr.svg?branch=master)](https://travis-ci.org/mrbobbytables/rndr)
+[![Coverage Status](https://coveralls.io/repos/github/mrbobbytables/rndr/badge.svg?branch=ci)](https://coveralls.io/github/mrbobbytables/rndr?branch=ci)
+
+Rndr is a small Ruby cli gem that provides a method of rendering discovered erb templates. Variables for use in template rendering can be used directly by providing a either a `yaml` or `json` file, or alternatively a directory may be supplied along with the variable merging strategy. Rndr supports both standard hash merges or recursive (default).
+
+Paths can be ignored by either creating a `.rndrignore` file within the current working directly, or supplying a path to a desired ignore file.
 
 
 * [Commands](#commands)
@@ -33,15 +37,16 @@ Usage:
 Options:
   e, [--extension=EXTENSION]  # Extension of templates.
                               # Default: erb
+  i, [--ignore=IGNORE]        # Path to file containing list of files to be ignored.
+                              # Default: /Users/demo/ruby/rndr/.rndrignore
   m, [--merge], [--no-merge]  # Recursively merge variables instead of replacing.
                               # Default: true
   t, [--template=TEMPLATE]    # Path to erb template or directory.
-                              # Default: /Users/bob/projects/ruby/rndr
+                              # Default: /Users/demo/ruby/rndr/rndr
   V, [--vars=VARS]            # Path to var file or directory.
-                              # Default: /Users/bob/projects/ruby/rndr/vars
+                              # Default: /Users/demo/ruby/rndr/vars
 
 Verifies discovered erb templates.
-...
 ```
 
 ### List
@@ -54,11 +59,12 @@ Usage:
 Options:
   e, [--extension=EXTENSION]  # Extension of templates.
                               # Default: erb
+  i, [--ignore=IGNORE]        # Path to file containing list of files to be ignored.
+                              # Default: /Users/demo/ruby/rndr/.rndrignore
   t, [--template=TEMPLATE]    # Path to erb template or directory.
-                              # Default: /Users/bob/projects/ruby/rndr
+                              # Default: /Users/demo/ruby/rndr/rndr
 
 List discovered templates.
-...
 ```
 
 ### Render
@@ -71,15 +77,16 @@ Usage:
 Options:
   e, [--extension=EXTENSION]  # Extension of templates.
                               # Default: erb
+  i, [--ignore=IGNORE]        # Path to file containing list of files to be ignored.
+                              # Default: /Users/demo/ruby/rndr/.rndrignore
   m, [--merge], [--no-merge]  # Recursively merge variables instead of replacing.
                               # Default: true
   t, [--template=TEMPLATE]    # Path to erb template or directory.
-                              # Default: /Users/bob/projects/ruby/rndr
+                              # Default: /Users/demo/ruby/rndr/rndr
   V, [--vars=VARS]            # Path to var file or directory.
-                              # Default: /Users/bob/projects/ruby/rndr/vars
+                              # Default: /Users/demo/ruby/rndr/vars
 
 Renders discovered templates.
-...
 ```
 
 ### Vars
@@ -95,8 +102,7 @@ Options:
   m, [--merge], [--no-merge]  # Recursively merge variables instead of replacing.
                               # Default: true
   V, [--vars=VARS]            # Path to var file or directory.
-                              # Default: /Users/bob/projects/ruby/rndr/vars
+                              # Default: /Users/demo/ruby/rndr/vars
 
 Lists Combined Variables.
-...
 ```
