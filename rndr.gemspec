@@ -8,7 +8,7 @@ Gem::Specification.new do |gem|
   gem.name            = 'rndr'
   gem.version         = Rndr::VERSION
   gem.authors         = ['Bob Killen']
-  gem.email           = ['rkillen@umich.edu']
+  gem.email           = ['arcts-dev@umich.edu']
   gem.license         = 'MIT'
   gem.summary         = 'Render Ruby templates quickly and easily.'
   gem.description     = 'rndr is a tool that simply renders Ruby erb ' \
