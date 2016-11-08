@@ -8,6 +8,7 @@ Gem::Specification.new do |gem|
   gem.name            = 'rndr'
   gem.version         = Rndr::VERSION
   gem.authors         = ['Bob Killen']
+  gem.homepage        = 'https://github.com/arc-ts/rndr'
   gem.email           = ['arcts-dev@umich.edu']
   gem.license         = 'MIT'
   gem.summary         = 'Render Ruby templates quickly and easily.'
