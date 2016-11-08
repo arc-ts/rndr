@@ -1,5 +1,5 @@
 # Rndr
-[![Build Status](https://travis-ci.org/mrbobbytables/rndr.svg?branch=master)](https://travis-ci.org/arc-ts/rndr)
+[![Build Status](https://travis-ci.org/arc-ts/rndr.svg?branch=master)](https://travis-ci.org/arc-ts/rndr)
 [![Coverage Status](https://coveralls.io/repos/github/arc-ts/rndr/badge.svg?branch=master)](https://coveralls.io/github/arc-ts/rndr?branch=master)
 
 Rndr is a small Ruby cli gem that provides a method of rendering discovered erb templates. Variables for use in template rendering can be used directly by providing a either a `yaml` or `json` file, or alternatively a directory may be supplied along with the variable merging strategy. Rndr supports both standard hash merges or recursive (default).
