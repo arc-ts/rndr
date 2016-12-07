@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+#-*- encoding: utf-8 -*-
 # frozen_string_literal: true
 require 'erb'
 
@@ -36,7 +36,7 @@ module Rndr
     def render_helper(render_path = nil)
       b = binding
       @vars.each { |k, v| b.local_variable_set(k, v) }
-      rendered = ERB.new(File.read(@path)).result(b)
+      rendered = ERB.new(File.read(@path), nil, '-').result(b)
       unless render_path.nil?
         File.open(render_path, 'w') { |f| f.write(rendered) }
       end
