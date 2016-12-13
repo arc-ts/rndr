@@ -15,11 +15,9 @@ module Rndr
   def self.matches(path:, ext: 'erb', ignore_path: File.join(Dir.pwd, '.rndrignore'))
     matched_paths = match_files(path: File.absolute_path(path), ext: ext)
     ignore_file_path = File.absolute_path(ignore_path)
-    if !matched_paths.empty? && File.exist?(ignore_file_path)
-      return filter_ignored_paths(path_list: matched_paths, ignore_path: ignore_file_path)
-    else
-      return matched_paths
-    end
+    return filter_ignored_paths(path_list: matched_paths, ignore_path: ignore_file_path) if
+           !matched_paths.empty? && File.exist?(ignore_file_path)
+    matched_paths
   end
 
   # Accepts a file or directory and will attempt to parse the discovered file(s) as either json
@@ -27,12 +25,14 @@ module Rndr
   # template rendering in {Template#render}.
   # @param path [String] The path to the vars file or directory. Will process both json and yaml.
   # @param merge [Boolean] True to enable recursive merge of hashes.
+  # @param merge_opts [Hash] A hash of options to be passed to the deep_merge method
   # @return [Hash] A hash containing the processed variables. Will be used to send to the binding
   #    of a rendered template. See {Template#render} for more information.
-  def self.read_vars(path:, merge: true)
+  def self.read_vars(path:, merge: true, merge_opts: {})
     vars_path = File.absolute_path(path)
     return read_vars_file(vars_path) if File.file?(vars_path)
-    return read_vars_dir(path: vars_path, merge: merge) if File.directory?(vars_path)
+    return read_vars_dir(path: vars_path, merge: merge, merge_opts: merge_opts) if
+           File.directory?(vars_path)
     {}
   end
 
@@ -87,7 +87,7 @@ module Rndr
     # @return [Hash, nil] Hash of processed data read from var passed var file.
     def read_vars_file(path)
       data = File.read(path)
-      return JSON.load(data) if json?(data)
+      return JSON.parse(data) if json?(data)
       return YAML.load(data) if yaml?(data)
       nil
     end
@@ -97,15 +97,16 @@ module Rndr
     # @param path [String] Path to directory containing files to be ingested and vars
     #    processed.
     # @param merge [Boolean] True if variables from files should be recursively merged.
+    # @param merge_opts [Hash] A hash of options to be passed to the deep_merge method
     # @return [Hash] Hash of processed variables read from files within the passed.
-    def read_vars_dir(path:, merge:)
+    def read_vars_dir(path:, merge:, merge_opts: {})
       processed_vars = {}
       Dir[File.join(path, '*')].each do |file|
         file_vars = read_vars_file(file)
-        unless file_vars.nil?
-          processed_vars =
-            merge_vars(base_hash: processed_vars, hash: file_vars, merge: merge)
-        end
+        next if file_vars.nil?
+        processed_vars =
+          merge_vars(base_hash: processed_vars, hash: file_vars, merge: merge,
+                     merge_opts: merge_opts)
       end
       processed_vars
     end
@@ -130,15 +131,42 @@ module Rndr
       false
     end
 
+    # to_bool converts the passed string to its associated bool value
+    # @param value [String] String to be converted to bool value
+    # @return [Boolean] True, False, or nil depending on input.
+    def to_bool(value)
+      return true if value.casecmp('true')
+      return false if value.casecmp('false')
+      nil
+    end
+
+    # deep_merge_opts converts the passed hash to the format that the deep_merge
+    # function accepts.
+    # @param hash [Hash] The options hash to be converted
+    # @return [Hash] A converted options hash to be passed to the deep_merge method
+    def deep_merge_opts(hash)
+      opts = {}
+      bool_vars = %w(extend_existing_arrays keep_array_duplicates merge_debug merge_hash_arrays
+                     overwrite_arrays preserve_unmergeables sort_merged_arrays)
+      string_vars = %w(knockout_prefix unpack_arrays)
+      hash.each do |k, v|
+        opts[k.to_sym] = v if string_vars.include?(k)
+        opts[k.to_sym] = to_bool(v) if bool_vars.include?(k)
+      end
+      opts
+    end
+
     # merge_vars handles merging hashes, either with a recursive merge (default) or with
     # a standard merge, which has a 'replace' effect.
     # @param base_hash [Hash] Original Hash to have values merged into.
     # @param hash [Hash] Secondary hash to be merged into base hash.
     # @param merge [Boolean] True to enable recursive merging of hashes.
+    # @param merge_opts [Hash] A hash of options to be passed to the deep_merge method
     # @return [Hash] The merged hash.
-    def merge_vars(base_hash:, hash:, merge: true)
+    def merge_vars(base_hash:, hash:, merge: true, merge_opts: {})
       if base_hash.is_a?(Hash) && hash.is_a?(Hash)
-        return base_hash.deep_merge!(hash) if merge == true
+        return base_hash.deep_merge!(hash, deep_merge_opts(merge_opts)) if
+          merge == true
         return base_hash.merge!(hash) if merge == false
       end
       {}

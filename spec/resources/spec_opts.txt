@@ -1,0 +1,15 @@
+---
+child:
+  childarray:
+  - arraykey3: arrayval3
+  - arraykey4: arrayval4
+  childhash:
+    childhashkey1: childhashval1
+    childhashkey2: childhashval2
+    childhashkey3: childhashval3
+    childhashkey4: childhashval4
+
+
+{"boolkey":false,"numkey":2}
+
+parent3: mergeval
