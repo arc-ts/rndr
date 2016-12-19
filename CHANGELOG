@@ -1,2 +1,7 @@
+0.0.4:
+  - Add merge-opts directive.
+  - Fix issue with ignore-file directive.
+  - Restructure spec tests.
+
 0.0.3:
-  - add default trim mode
+  - Add default trim mode.

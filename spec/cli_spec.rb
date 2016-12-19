@@ -1,16 +1,15 @@
 # -*- encoding: utf-8 -*-
 # frozen_string_literal: true
-# rubocop:disable Metris/ModuleLength
-# rubocop:disable Metris/BlockLength
+
 require 'fileutils'
 require 'rndr'
 require_relative 'spec_helper'
 
-module Rndr
-  RSpec.describe CLI do
+module Rndr # rubocop:disable Metrics/ModuleLength
+  RSpec.describe CLI do # rubocop:disable Metrics/BlockLength
     before(:all) { Dir.chdir(File.join(Dir.pwd, 'spec/resources')) }
     let(:cli) { CLI.new }
-    describe '#check' do
+    describe '#check' do # rubocop:disable Metrics/BlockLength
       context 'When the default options are supplied' do
         before do
           cli.options = {
@@ -24,7 +23,7 @@ module Rndr
         end
       end
 
-      context 'When a merge option is supplied' do
+      context 'When a bool merge option is supplied' do
         before do
           cli.options = {
             extension: 'erb', ignore: 'rndrignore', merge: true,
@@ -70,7 +69,7 @@ module Rndr
       end
     end
 
-    describe '#render' do
+    describe '#render' do # rubocop:disable Metrics/BlockLength
       let(:rendered_file) { File.absolute_path('templates/rendertest.txt') }
       let(:rendered_ext) { File.absolute_path('templates/exttest.txt') }
       let(:spec_merged) { File.absolute_path('spec_merged.txt') }
@@ -95,7 +94,7 @@ module Rndr
         end
       end
 
-      context 'When a merge option is supplied' do
+      context 'When a boolean merge option is supplied' do
         before do
           cli.options = {
             extension: 'erb', ignore: 'rndrignore', merge: true,
@@ -138,8 +137,8 @@ module Rndr
       end
     end
 
-    describe '#vars' do
-      context 'When a directory is supplied.' do
+    describe '#vars' do # rubocop:disable Metrics/BlockLength
+      context 'When a directory is supplied.' do # rubocop:disable Metrics/BlockLength
         context 'should serialize and recursively merge variables' do
           before do
             cli.options = { format: 'yaml', merge: true, merge_opts: {}, vars: 'vars' }
@@ -150,13 +149,26 @@ module Rndr
           end
         end
 
-        context 'should serialize and recursively merge variables with a merge option' do
+        context 'should serialize and recursively merge variables with a boolean merge option' do
           before do
             cli.options = {
               format: 'yaml', merge: true,
               merge_opts: { 'overwrite_arrays' => 'true' }, vars: 'vars'
             }
-            @merged = File.read(File.absolute_path('vars_opts.txt'))
+            @merged = File.read(File.absolute_path('vars_opts_bool.txt'))
+          end
+          it 'should perform a deep merge' do
+            expect { cli.vars }.to output(@merged).to_stdout
+          end
+        end
+
+        context 'should serialize and recursively merge variables with a string merge option' do
+          before do
+            cli.options = {
+              format: 'yaml', merge: true,
+              merge_opts: { 'unpack_arrays' => ',' }, vars: 'vars'
+            }
+            @merged = File.read(File.absolute_path('vars_opts_string.txt'))
           end
           it 'should perform a deep merge' do
             expect { cli.vars }.to output(@merged).to_stdout
@@ -201,5 +213,3 @@ module Rndr
     end
   end
 end
-# rubocop:enable Metris/ModuleLength
-# rubocop:enable Metris/BlockLength
