@@ -1,6 +1,9 @@
 AllCops:
   TargetRubyVersion: 2.3
 
+Lint/UnneededDisable:
+  Enabled: false
+
 Metrics/AbcSize:
   Max: 20
 

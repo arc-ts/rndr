@@ -22,10 +22,14 @@ module Rndr
     method_option :vars,
                   aliases: :V, type: :string, default: File.join(Dir.pwd, 'vars'),
                   desc: 'Path to var file or directory.'
+    method_option :merge_opts,
+                  aliases: :o, type: :hash, default: {},
+                  desc: 'Hash of options to pass to deep_merge function'
     def check
       results = Rndr.matches(path: options[:template], ext: options[:extension],
                              ignore_path: options[:ignore])
-      template_vars = Rndr.read_vars(path: options[:vars], merge: options[:merge])
+      template_vars = Rndr.read_vars(path: options[:vars], merge: options[:merge],
+                                     merge_opts: options[:merge_opts])
       results.each do |path|
         template = Template.new(path: path, vars: template_vars)
         print_check_result(path: path, result: template.render?)
@@ -44,7 +48,7 @@ module Rndr
                   desc: 'Path to erb template or directory.'
     def list
       results = Rndr.matches(path: options[:template], ext: options[:extension],
-                             ignore_path: '.rndrignore')
+                             ignore_path: options[:ignore])
       if results.empty?
         puts 'No matching results.'
       else
@@ -68,10 +72,14 @@ module Rndr
     method_option :vars,
                   aliases: :V, type: :string, default: File.join(Dir.pwd, 'vars'),
                   desc: 'Path to var file or directory.'
-    def render
+    method_option :merge_opts,
+                  aliases: :o, type: :hash, default: {},
+                  desc: 'Hash of options to pass to deep_merge function'
+    def render # rubocop:disable Metrics/AbcSize
       results = Rndr.matches(path: options[:template], ext: options[:extension],
-                             ignore_path: '.rndrignore')
-      template_vars = Rndr.read_vars(path: options[:vars], merge: options[:merge])
+                             ignore_path: options[:ignore])
+      template_vars = Rndr.read_vars(path: options[:vars], merge: options[:merge],
+                                     merge_opts: options[:merge_opts])
       results.each do |path|
         template = Template.new(path: path, vars: template_vars)
         render_path = path.gsub(/.#{options[:extension]}$/, '')
@@ -90,8 +98,12 @@ module Rndr
     method_option :vars,
                   aliases: :V, type: :string, default: File.join(Dir.pwd, 'vars'),
                   desc: 'Path to var file or directory.'
+    method_option :merge_opts,
+                  aliases: :o, type: :hash, default: {},
+                  desc: 'Hash of options to pass to deep_merge function'
     def vars
-      result = Rndr.read_vars(path: options[:vars], merge: options[:merge])
+      result = Rndr.read_vars(path: options[:vars], merge: options[:merge],
+                              merge_opts: options[:merge_opts])
       case options[:format].downcase
       when 'json'
         puts result.to_json

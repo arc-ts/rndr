@@ -4,6 +4,8 @@
 
 Rndr is a small Ruby cli gem that provides a method of rendering discovered erb templates. Variables for use in template rendering can be used directly by providing a either a `yaml` or `json` file, or alternatively a directory may be supplied along with the variable merging strategy. Rndr supports both standard hash merges or recursive (default).
 
+In addition to supporting recursive hash merges, additional hash control options may be passed via the `--merge-opts` hash directive. This supports the available options as supported by the [deep_merge](https://github.com/danielsdeleo/deep_merge) gem.
+
 Paths can be ignored by either creating a `.rndrignore` file within the current working directly, or supplying a path to a desired ignore file.
 
 
@@ -35,16 +37,17 @@ Usage:
   rndr check
 
 Options:
-  e, [--extension=EXTENSION]  # Extension of templates.
-                              # Default: erb
-  i, [--ignore=IGNORE]        # Path to file containing list of files to be ignored.
-                              # Default: /Users/demo/ruby/rndr/.rndrignore
-  m, [--merge], [--no-merge]  # Recursively merge variables instead of replacing.
-                              # Default: true
-  t, [--template=TEMPLATE]    # Path to erb template or directory.
-                              # Default: /Users/demo/ruby/rndr/rndr
-  V, [--vars=VARS]            # Path to var file or directory.
-                              # Default: /Users/demo/ruby/rndr/vars
+  e, [--extension=EXTENSION]   # Extension of templates.
+                               # Default: erb
+  i, [--ignore=IGNORE]         # Path to file containing list of files to be ignored.
+                               # Default: /Users/demo/ruby/rndr/.rndrignore
+  m, [--merge], [--no-merge]   # Recursively merge variables instead of replacing.
+                               # Default: true
+  t, [--template=TEMPLATE]     # Path to erb template or directory.
+                               # Default: /Users/demo/ruby/rndr
+  V, [--vars=VARS]             # Path to var file or directory.
+                               # Default: /Users/demo/ruby/rndr/vars
+  o, [--merge-opts=key:value]  # Hash of options to pass to deep_merge function
 
 Verifies discovered erb templates.
 ```
@@ -85,6 +88,7 @@ Options:
                               # Default: /Users/demo/ruby/rndr/rndr
   V, [--vars=VARS]            # Path to var file or directory.
                               # Default: /Users/demo/ruby/rndr/vars
+  o, [--merge-opts=key:value]  # Hash of options to pass to deep_merge function
 
 Renders discovered templates.
 ```
@@ -103,6 +107,7 @@ Options:
                               # Default: true
   V, [--vars=VARS]            # Path to var file or directory.
                               # Default: /Users/demo/ruby/rndr/vars
+  o, [--merge-opts=key:value]  # Hash of options to pass to deep_merge function
 
 Lists Combined Variables.
 ```

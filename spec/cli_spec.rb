@@ -5,19 +5,29 @@ require 'fileutils'
 require 'rndr'
 require_relative 'spec_helper'
 
-module Rndr # rubocop:disable Metris/ModuleLength
-  RSpec.describe CLI do
-    before(:all) { Dir.chdir(File.join(Dir.pwd, 'test')) }
-    after(:all) { Dir.chdir('../') }
-
+module Rndr # rubocop:disable Metrics/ModuleLength
+  RSpec.describe CLI do # rubocop:disable Metrics/BlockLength
+    before(:all) { Dir.chdir(File.join(Dir.pwd, 'spec/resources')) }
     let(:cli) { CLI.new }
-
-    describe '#check' do
+    describe '#check' do # rubocop:disable Metrics/BlockLength
       context 'When the default options are supplied' do
         before do
           cli.options = {
-            extension: 'erb', ignore: '.rndrignore',
-            merge: true, template: 'templates', vars: 'vars'
+            extension: 'erb', ignore: 'rndrignore', merge: true,
+            merge_opts: {}, template: 'templates', vars: 'vars'
+          }
+        end
+        it 'should list the correctly matched results' do
+          expect { cli.check }.to output(/rendertest.txt.erb \[OK\]$/).to_stdout
+          expect { cli.check }.to_not output(/ignoretest.txt.erb [OK]$/).to_stdout
+        end
+      end
+
+      context 'When a bool merge option is supplied' do
+        before do
+          cli.options = {
+            extension: 'erb', ignore: 'rndrignore', merge: true,
+            merge_opts: { 'overwrite_arrays' => 'true' }, template: 'templates', vars: 'vars'
           }
         end
         it 'should list the correctly matched results' do
@@ -29,8 +39,8 @@ module Rndr # rubocop:disable Metris/ModuleLength
       context 'When an alternate exntesion is provided' do
         before do
           cli.options = {
-            extension: 'tmplt', ignore: '.rndrignore',
-            merge: true, template: 'templates', vars: 'vars'
+            extension: 'tmplt', ignore: 'rndrignore', merge: true,
+            merge_opts: {}, template: 'templates', vars: 'vars'
           }
         end
         it 'should list the correctly matched results' do
@@ -42,7 +52,7 @@ module Rndr # rubocop:disable Metris/ModuleLength
 
     describe '#list' do
       context 'When the default options are supplied' do
-        before { cli.options = { extension: 'erb', ignore: '.rndrignore', template: 'templates' } }
+        before { cli.options = { extension: 'erb', ignore: 'rndrignore', template: 'templates' } }
         it 'should list the correctly matched results' do
           expect { cli.list }.to output(/rendertest.txt.erb$/).to_stdout
           expect { cli.list }.to_not output(/ignoretest.txt.erb/).to_stdout
@@ -50,7 +60,7 @@ module Rndr # rubocop:disable Metris/ModuleLength
       end
       context 'When an alternate extension is provided' do
         before do
-          cli.options = { extension: 'tmplt', ignore: '.rndrignore', template: 'templates' }
+          cli.options = { extension: 'tmplt', ignore: 'rndrignore', template: 'templates' }
         end
         it 'should list the correctly matched results' do
           expect { cli.list }.to output(/exttest.txt.tmplt$/).to_stdout
@@ -59,70 +69,106 @@ module Rndr # rubocop:disable Metris/ModuleLength
       end
     end
 
-    describe '#render' do
-      let(:rendered_file) { File.absolute_path('../test/templates/rendertest.txt') }
-      let(:rendered_ext) { File.absolute_path('../test/templates/exttest.txt') }
-      let(:rendered_merged) do
-        File.join(File.dirname(__FILE__), 'resources/rendered_merged.txt')
-      end
-      let(:rendered_replaced) do
-        File.join(File.dirname(__FILE__), 'resources/rendered_replaced.txt')
-      end
+    describe '#render' do # rubocop:disable Metrics/BlockLength
+      let(:rendered_file) { File.absolute_path('templates/rendertest.txt') }
+      let(:rendered_ext) { File.absolute_path('templates/exttest.txt') }
+      let(:spec_merged) { File.absolute_path('spec_merged.txt') }
+      let(:spec_opts) { File.absolute_path('spec_opts.txt') }
+      let(:spec_replaced) { File.absolute_path('spec_replaced.txt') }
       after(:each) do
         File.delete(rendered_file) if File.exist?(rendered_file)
         File.delete(rendered_ext) if File.exist?(rendered_ext)
       end
 
-      context 'When the defaults are spplied' do
+      context 'When the defaults are supplied' do
         before do
           cli.options = {
-            extension: 'erb', ignore: '.rndrignore',
-            merge: true, template: 'templates', vars: 'vars'
+            extension: 'erb', ignore: 'rndrignore', merge: true,
+            merge_opts: {}, template: 'templates', vars: 'vars'
           }
         end
         it 'should render items correctly' do
           expect { cli.render }.to output(/rendertest.txt \[OK\]$/).to_stdout
           expect { cli.render }.to_not output(/ignoretest.txt/).to_stdout
-          expect(FileUtils.compare_file(rendered_merged, rendered_file)).to be_truthy
+          expect(FileUtils.compare_file(spec_merged, rendered_file)).to be_truthy
         end
       end
 
-      context ' When the replace merege strategy is specified' do
+      context 'When a boolean merge option is supplied' do
         before do
           cli.options = {
-            extension: 'erb', ignore: '.rndrignore',
-            merge: false, template: 'templates', vars: 'vars'
+            extension: 'erb', ignore: 'rndrignore', merge: true,
+            merge_opts: { 'overwrite_arrays' => 'true' }, template: 'templates', vars: 'vars'
           }
         end
         it 'should render items correctly' do
           expect { cli.render }.to output(/rendertest.txt \[OK\]$/).to_stdout
           expect { cli.render }.to_not output(/ignoretest.txt/).to_stdout
-          expect(FileUtils.compare_file(rendered_replaced, rendered_file)).to be_truthy
+          expect(FileUtils.compare_file(spec_opts, rendered_file)).to be_truthy
+        end
+      end
+
+      context 'When the replace merege strategy is specified' do
+        before do
+          cli.options = {
+            extension: 'erb', ignore: 'rndrignore', merge: false,
+            merge_opts: {}, template: 'templates', vars: 'vars'
+          }
+        end
+        it 'should render items correctly' do
+          expect { cli.render }.to output(/rendertest.txt \[OK\]$/).to_stdout
+          expect { cli.render }.to_not output(/ignoretest.txt/).to_stdout
+          expect(FileUtils.compare_file(spec_replaced, rendered_file)).to be_truthy
         end
       end
 
       context 'When provided an alternate extension' do
         before do
           cli.options = {
-            extension: 'tmplt', ignore: '.rndrignore',
-            merge: true, template: 'templates', vars: 'vars'
+            extension: 'tmplt', ignore: 'rndrignore', merge: true,
+            merge_opts: {}, template: 'templates', vars: 'vars'
           }
         end
         it 'should render items correctly' do
           expect { cli.render }.to output(/exttest.txt \[OK\]$/).to_stdout
           expect { cli.render }.to_not output(/rendertest.txt/).to_stdout
-          expect(FileUtils.compare_file(rendered_merged, rendered_ext)).to be_truthy
+          expect(FileUtils.compare_file(spec_merged, rendered_ext)).to be_truthy
         end
       end
     end
 
-    describe '#vars' do
-      context 'When a directory is supplied.' do
+    describe '#vars' do # rubocop:disable Metrics/BlockLength
+      context 'When a directory is supplied.' do # rubocop:disable Metrics/BlockLength
         context 'should serialize and recursively merge variables' do
           before do
-            cli.options = { format: 'yaml', merge: true, vars: 'vars' }
-            @merged =
-              File.read(File.join(File.dirname(__FILE__), 'resources/vars_merged.txt'))
+            cli.options = { format: 'yaml', merge: true, merge_opts: {}, vars: 'vars' }
+            @merged = File.read(File.absolute_path('vars_merged.txt'))
+          end
+          it 'should perform a deep merge' do
+            expect { cli.vars }.to output(@merged).to_stdout
+          end
+        end
+
+        context 'should serialize and recursively merge variables with a boolean merge option' do
+          before do
+            cli.options = {
+              format: 'yaml', merge: true,
+              merge_opts: { 'overwrite_arrays' => 'true' }, vars: 'vars'
+            }
+            @merged = File.read(File.absolute_path('vars_opts_bool.txt'))
+          end
+          it 'should perform a deep merge' do
+            expect { cli.vars }.to output(@merged).to_stdout
+          end
+        end
+
+        context 'should serialize and recursively merge variables with a string merge option' do
+          before do
+            cli.options = {
+              format: 'yaml', merge: true,
+              merge_opts: { 'unpack_arrays' => ',' }, vars: 'vars'
+            }
+            @merged = File.read(File.absolute_path('vars_opts_string.txt'))
           end
           it 'should perform a deep merge' do
             expect { cli.vars }.to output(@merged).to_stdout
@@ -131,9 +177,8 @@ module Rndr # rubocop:disable Metris/ModuleLength
 
         context 'should serialize and merge variables with replace behaviour' do
           before do
-            cli.options = { format: 'yaml', merge: false, vars: 'vars' }
-            @replaced =
-              File.read(File.join(File.dirname(__FILE__), 'resources/vars_replaced.txt'))
+            cli.options = { format: 'yaml', merge: false, merge_opts: {}, vars: 'vars' }
+            @replaced = File.read(File.absolute_path('vars_replaced.txt'))
           end
           it 'should perform a standard merge' do
             expect { cli.vars }.to output(@replaced).to_stdout
@@ -143,9 +188,8 @@ module Rndr # rubocop:disable Metris/ModuleLength
 
       context 'When a json file is supplied' do
         before do
-          cli.options = { format: 'yaml', merge: true, vars: 'vars/a.json' }
-          @vars =
-            File.read(File.join(File.dirname(__FILE__), 'resources/vars_a.txt'))
+          cli.options = { format: 'yaml', merge: true, merge_opts: {}, vars: 'vars/a.json' }
+          @vars = File.read(File.absolute_path('vars_a.txt'))
         end
         it 'should serialize the data' do
           expect { cli.vars }.to output(@vars).to_stdout
@@ -153,9 +197,8 @@ module Rndr # rubocop:disable Metris/ModuleLength
       end
       context 'When a yaml file is supplied' do
         before do
-          cli.options = { format: 'yaml', merge: true, vars: 'vars/b.yaml' }
-          @vars =
-            File.read(File.join(File.dirname(__FILE__), 'resources/vars_b.txt'))
+          cli.options = { format: 'yaml', merge: true, merge_opts: {}, vars: 'vars/b.yaml' }
+          @vars = File.read(File.absolute_path('vars_b.txt'))
         end
         it 'should serialize the data' do
           expect { cli.vars }.to output(@vars).to_stdout

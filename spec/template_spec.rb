@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
 # frozen_string_literal: true
+# rubocop:disable Metrics/BlockLength
 
 require 'rndr'
 require 'yaml'
@@ -8,17 +9,15 @@ require_relative 'spec_helper'
 module Rndr
   RSpec.describe Template do
     before(:all) do
-      Dir.chdir(File.join(Dir.pwd, 'test'))
       @success_tmplt = File.absolute_path('templates/rendertest.txt.erb')
       @fail_tmplt = File.absolute_path('templates/failtest.txt.erb')
       @rendered_success = File.absolute_path('templates/rendertest.txt')
       @rendered_fail = File.absolute_path('templates/failtest.txt')
-      @compare_success = File.join(File.dirname(__FILE__), 'resources/rendered_merged.txt')
+      @compare_success = File.absolute_path('spec_merged.txt')
       @vars =
-        YAML.load(File.read(File.join(File.dirname(__FILE__), 'resources/vars_merged.txt')))
+        YAML.load(File.read(File.absolute_path('vars_merged.txt')))
     end
     after(:all) do
-      Dir.chdir('../')
       File.delete(@rendered_success) if File.exist?(@rendered_success)
       File.delete(@rendered_fail) if File.exist?(@rendered_fail)
     end
@@ -59,3 +58,4 @@ module Rndr
     end
   end
 end
+# rubocop:enable Metrics/BlockLength
